@@ -21,22 +21,14 @@ class EventConverter:
                 "user_info": {
                     "user_id": event.message_obj.sender.user_id,
                     "user_nickname": event.message_obj.sender.nickname,
-                    "user_cardname": astrbot_message.get("user_cardname", ""),
+                    "user_cardname": event.message_obj.sender.nickname,  # AstrBot 没有同时保存两个东西
                     "platform": "astrbot_platform",
                 },
-                "group_info": (
-                    {
-                        "group_id": (
-                            str(astrbot_message["group_id"])
-                            if astrbot_message.get("group_id")
-                            else None
-                        ),
-                        "group_name": astrbot_message.get("group_name", ""),
-                        "platform": "astrbot_platform",
-                    }
-                    if astrbot_message.get("group_id")
-                    else None
-                ),
+                "group_info": {
+                    "group_id": event.message_obj.group.group_id,
+                    "group_name": event.message_obj.group.group_name,
+                    "platform": "astrbot_platform",
+                },
                 "additional_config": None,
                 "format_info": {"content_format": "", "accept_format": ""},
                 "template_info": {
@@ -45,10 +37,11 @@ class EventConverter:
                     "template_items": {},
                 },
             },
-            "message_segment": {"type": "text", "data": astrbot_message["content"]},
-            "raw_message": astrbot_message["content"],
-            "processed_plain_text": astrbot_message["content"],
+            "message_segment": {"type": "text", "data": event.message_obj.message},
+            "raw_message": event.message_obj.raw_message,
+            "processed_plain_text": event.message_str,
         }
+        return maibot_message_data
 
     @classmethod
     def convert_to_astrbot_event(cls, event):
